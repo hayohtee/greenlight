@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
@@ -15,4 +16,24 @@ func (app *application) readIDParam(r *http.Request) (int64, error) {
 		return 0, err
 	}
 	return id, nil
+}
+
+// writeJSON encode the data into json and send it as response. This takes destination
+// http.ResponseWrite, the HTTP status code to send, data to encode, and a header
+// map containing any additional HTTP headers we want to include in the response.
+func (app *application) writeJSON(w http.ResponseWriter, status int, data any, headers http.Header) error {
+	js, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	js = append(js, '\n')
+
+	for key, value := range headers {
+		w.Header()[key] = value
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	_, err = w.Write(js)
+	return err
 }
