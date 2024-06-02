@@ -5,8 +5,11 @@ import (
 	"net/http"
 )
 
+// healthcheckHandler write application information as a fixed-format json response
 func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
-	_, _ = fmt.Fprintln(w, "status: available")
-	_, _ = fmt.Fprintf(w, "environment: %s\n", app.config.env)
-	_, _ = fmt.Fprintf(w, "version: %s\n", version)
+	js := `{"status": "available", "environment": %q, "version": %q}`
+	js = fmt.Sprintf(js, app.config.env, version)
+
+	w.Header().Set("Content-Type", "application/json")
+	_, _ = w.Write([]byte(js))
 }
