@@ -7,6 +7,9 @@ import (
 	"strconv"
 )
 
+// Define an envelope type.
+type envelope map[string]any
+
 // readIDParam retrieve the "id" URL parameter from the current context, then
 // convert it to an integer and return it.
 func (app *application) readIDParam(r *http.Request) (int64, error) {
