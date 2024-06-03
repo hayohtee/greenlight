@@ -7,6 +7,9 @@ import (
 	"strconv"
 )
 
+// Define an envelope type.
+type envelope map[string]any
+
 // readIDParam retrieve the "id" URL parameter from the current context, then
 // convert it to an integer and return it.
 func (app *application) readIDParam(r *http.Request) (int64, error) {
@@ -21,8 +24,8 @@ func (app *application) readIDParam(r *http.Request) (int64, error) {
 // writeJSON encode the data into json and send it as response. This takes destination
 // http.ResponseWrite, the HTTP status code to send, data to encode, and a header
 // map containing any additional HTTP headers we want to include in the response.
-func (app *application) writeJSON(w http.ResponseWriter, status int, data any, headers http.Header) error {
-	js, err := json.Marshal(data)
+func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
+	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
 		return err
 	}
