@@ -1,2 +1,2 @@
 # greenlight
-A movie json based api built with gaoling
+A movie json based api built with golang
