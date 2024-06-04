@@ -39,7 +39,18 @@ func (app *application) notFoundResponse(w http.ResponseWriter, r *http.Request)
 
 // methodNotAllowedResponse uses the errorResponse helper method to send a 405 Method Not Allowed
 // status code and JSON response to the client.
-func (app *application) methodNotAllowedResponse(w http.ResponseWriter, r *http.Request, err error) {
+func (app *application) methodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
 	message := fmt.Sprintf("the %s method is not supported for this resource", r.Method)
 	app.errorResponse(w, r, http.StatusMethodNotAllowed, message)
+}
+
+// badRequestResponse uses the errorResponse helper method to send a 400 Bad Request status code
+// and JSON response containing the error message to the client.
+func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
+	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+}
+
+// failedValidationResponse writes 422 Unprocessable Entity and the contents of the error as JSON response.
+func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
+	app.errorResponse(w, r, http.StatusUnprocessableEntity, errors)
 }
