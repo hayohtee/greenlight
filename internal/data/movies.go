@@ -101,7 +101,7 @@ func (m MovieModel) Update(movie *Movie) error {
 		RETURNING version;`
 
 	args := []any{movie.Title, movie.Year, movie.Runtime, pq.Array(movie.Genres), movie.ID}
-	return m.DB.QueryRow(query, args).Scan(&movie.Version)
+	return m.DB.QueryRow(query, args...).Scan(&movie.Version)
 }
 
 // Delete a specific movie from the database or return an error.
