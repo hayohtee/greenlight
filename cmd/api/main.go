@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"github.com/hayohtee/greenlight/internal/data"
 	_ "github.com/lib/pq"
 	"log"
 	"net/http"
@@ -39,6 +40,7 @@ type config struct {
 type application struct {
 	config config
 	logger *log.Logger
+	models data.Models
 }
 
 func main() {
@@ -79,6 +81,7 @@ func main() {
 	app := &application{
 		config: cfg,
 		logger: logger,
+		models: data.NewModels(db),
 	}
 
 	// Create HTTP server with timeouts and listen on the port provided in the config struct.
