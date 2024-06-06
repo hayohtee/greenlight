@@ -3,6 +3,7 @@ package data
 import (
 	"database/sql"
 	"github.com/hayohtee/greenlight/internal/validator"
+	"github.com/lib/pq"
 	"time"
 )
 
@@ -48,7 +49,13 @@ type MovieModel struct {
 
 // Insert a movie into the database.
 func (m MovieModel) Insert(movie *Movie) error {
-	return nil
+	query := `
+		INSERT INTO movies (title, year, runtime, genres)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id, created_at, version;`
+
+	args := []any{movie.Title, movie.Year, movie.Runtime, pq.Array(movie.Genres)}
+	return m.DB.QueryRow(query, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
 }
 
 // Get a specific movie from the database or return an error.
