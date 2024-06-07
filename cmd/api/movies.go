@@ -112,7 +112,7 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 
 	// Copy the values from the request body to the appropriate fields of the movie record.
 	// If the input field is nil then we know that no corresponding key value pair was
-	// provided in the JSON request body and we leave the movie record unchanged.
+	// provided in the JSON request body, and we leave the movie record unchanged.
 	if input.Title != nil {
 		movie.Title = *input.Title
 	}
