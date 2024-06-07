@@ -137,7 +137,12 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 	// Pass the updated movie record to Update() method to persist the update to the database.
 	err = app.models.Movies.Update(movie)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
 		return
 	}
 
