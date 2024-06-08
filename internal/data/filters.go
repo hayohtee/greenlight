@@ -40,3 +40,13 @@ func (f Filters) sortDirection() string {
 	}
 	return "ASC"
 }
+
+// limit return the number of records to retrieve.
+func (f Filters) limit() int {
+	return f.PageSize
+}
+
+// offset returns the starting index to retrieve from.
+func (f Filters) offset() int {
+	return (f.Page - 1) * f.PageSize
+}
