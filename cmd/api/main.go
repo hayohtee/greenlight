@@ -6,42 +6,12 @@ import (
 	"flag"
 	"fmt"
 	"github.com/hayohtee/greenlight/internal/data"
+	"github.com/hayohtee/greenlight/internal/jsonlog"
 	_ "github.com/lib/pq"
-	"log"
 	"net/http"
 	"os"
 	"time"
 )
-
-// Holds the application version number.
-const version = "1.0.0"
-
-// A type to holds all configuration settings for the app.
-type config struct {
-	// A network port to listen on
-	port int
-	// Name of the current operating environment(development, staging,production, etc.)
-	env string
-	// Holds configuration settings for the database.
-	db struct {
-		// Holds the data source name.
-		dsn string
-		// Holds the maximum number of open connections.
-		maxOpenConns int
-		// Holds the maximum number of idle connections.
-		maxIdleConns int
-		// Holds the time duration for idle connections.
-		maxIdleTime string
-	}
-}
-
-// A type to hold the dependencies for HTTP handlers, helpers,
-// middlewares.
-type application struct {
-	config config
-	logger *log.Logger
-	models data.Models
-}
 
 func main() {
 	var cfg config
@@ -59,23 +29,23 @@ func main() {
 	flag.StringVar(&cfg.db.maxIdleTime, "db-max-idle-time", "15m", "PostgreSQL max idle time")
 	flag.Parse()
 
-	// Initialize a new logger which writes message to the standard output stream, prefixed with
-	// current date and time.
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
+	// Initialize a new jsonlog.Logger which writes any message *at or above* the INFO
+	// severity level to the standard output stream.
+	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 
 	db, err := openDB(cfg)
 	if err != nil {
-		logger.Fatal(err)
+		logger.PrintFatal(err, nil)
 	}
 
 	defer func(db *sql.DB) {
 		err := db.Close()
 		if err != nil {
-			logger.Fatal(err)
+			logger.PrintFatal(err, nil)
 		}
 	}(db)
 
-	logger.Print("database connection established")
+	logger.PrintInfo("database connection established", nil)
 
 	// Create an instance of application struct
 	app := &application{
@@ -93,9 +63,13 @@ func main() {
 		WriteTimeout: 30 * time.Second,
 	}
 
-	logger.Printf("starting %s server on %s", cfg.env, srv.Addr)
+	logger.PrintInfo("starting server", map[string]string{
+		"env":  cfg.env,
+		"addr": srv.Addr,
+	})
+
 	err = srv.ListenAndServe()
-	logger.Fatal(err)
+	logger.PrintFatal(err, nil)
 }
 
 func openDB(cfg config) (*sql.DB, error) {
