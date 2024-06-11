@@ -51,31 +51,33 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 	}()
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ip, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
-			return
-		}
-		mu.Lock()
-
-		if _, found := clients[ip]; !found {
-			// Initialize a new rate limiter which allows an average of 2 requests per second,
-			// with a maximum of 4 requests in a single 'burst'.
-			clients[ip] = &client{
-				limiter: rate.NewLimiter(2, 4),
+		if app.config.limiter.enabled {
+			ip, _, err := net.SplitHostPort(r.RemoteAddr)
+			if err != nil {
+				app.serverErrorResponse(w, r, err)
+				return
 			}
-		}
+			mu.Lock()
 
-		// Update the last seen for the client.
-		clients[ip].lastSeen = time.Now()
+			if _, found := clients[ip]; !found {
+				// Initialize a new rate limiter which allows an average of 2 requests per second,
+				// with a maximum of 4 requests in a single 'burst'.
+				clients[ip] = &client{
+					limiter: rate.NewLimiter(rate.Limit(app.config.limiter.rps), app.config.limiter.burst),
+				}
+			}
 
-		if !clients[ip].limiter.Allow() {
+			// Update the last seen for the client.
+			clients[ip].lastSeen = time.Now()
+
+			if !clients[ip].limiter.Allow() {
+				mu.Unlock()
+				app.rateLimitExceededResponse(w, r)
+				return
+			}
+
 			mu.Unlock()
-			app.rateLimitExceededResponse(w, r)
-			return
 		}
-
-		mu.Unlock()
 		next.ServeHTTP(w, r)
 	})
 }
