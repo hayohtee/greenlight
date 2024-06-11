@@ -25,6 +25,11 @@ type config struct {
 		// Holds the time duration for idle connections.
 		maxIdleTime string
 	}
+	limiter struct {
+		rps     float64
+		burst   int
+		enabled bool
+	}
 }
 
 // A type to hold the dependencies for HTTP handlers, helpers,
