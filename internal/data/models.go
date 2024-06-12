@@ -16,11 +16,13 @@ var (
 // Models is a struct that wraps all the database models.
 type Models struct {
 	Movies MovieModel
+	Users  UserModel
 }
 
 // NewModels returns an initialized Models struct.
 func NewModels(db *sql.DB) Models {
 	return Models{
 		Movies: MovieModel{DB: db},
+		Users:  UserModel{DB: db},
 	}
 }
