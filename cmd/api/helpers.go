@@ -132,3 +132,16 @@ func (app *application) readInt(qs url.Values, key string, defaultValue int, v *
 	}
 	return i
 }
+
+// background accepts an arbitrary function as a parameter launch the function
+// in a new goroutine and handle panic.
+func (app *application) background(fn func()) {
+	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				app.logger.PrintError(fmt.Errorf("%s", err), nil)
+			}
+		}()
+		fn()
+	}()
+}
