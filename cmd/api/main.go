@@ -6,6 +6,7 @@ import (
 	"flag"
 	"github.com/hayohtee/greenlight/internal/data"
 	"github.com/hayohtee/greenlight/internal/jsonlog"
+	"github.com/hayohtee/greenlight/internal/mailer"
 	_ "github.com/lib/pq"
 	"os"
 	"time"
@@ -30,6 +31,13 @@ func main() {
 	flag.Float64Var(&cfg.limiter.rps, "limiter-rps", 2, "Rate limiter maximum requests per second")
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
+
+	// Reads the SMTP server configuration settings from the command-line flags into the config struct.
+	flag.StringVar(&cfg.smtp.host, "smtp-host", "sandbox.smtp.mailtrap.io", "SMTP host")
+	flag.IntVar(&cfg.smtp.port, "smtp-port", 25, "SMTP port")
+	flag.StringVar(&cfg.smtp.username, "smtp-username", "9d94c906bc4200", "SMTP username")
+	flag.StringVar(&cfg.smtp.password, "smtp-password", "d9dc397d913a4f", "SMTP password")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@greenlight.hayohtee.com>", "SMTP sender")
 	flag.Parse()
 
 	// Initialize a new jsonlog.Logger which writes any message *at or above* the INFO
@@ -55,6 +63,7 @@ func main() {
 		config: cfg,
 		logger: logger,
 		models: data.NewModels(db),
+		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
 
 	err = app.serve()
