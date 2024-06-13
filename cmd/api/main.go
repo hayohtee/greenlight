@@ -34,7 +34,7 @@ func main() {
 
 	// Reads the SMTP server configuration settings from the command-line flags into the config struct.
 	flag.StringVar(&cfg.smtp.host, "smtp-host", "sandbox.smtp.mailtrap.io", "SMTP host")
-	flag.IntVar(&cfg.smtp.port, "smtp-port", 25, "SMTP port")
+	flag.IntVar(&cfg.smtp.port, "smtp-port", 2525, "SMTP port")
 	flag.StringVar(&cfg.smtp.username, "smtp-username", "9d94c906bc4200", "SMTP username")
 	flag.StringVar(&cfg.smtp.password, "smtp-password", "d9dc397d913a4f", "SMTP password")
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@greenlight.hayohtee.com>", "SMTP sender")
