@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/hayohtee/greenlight/internal/data"
 	"github.com/hayohtee/greenlight/internal/jsonlog"
+	"github.com/hayohtee/greenlight/internal/mailer"
 )
 
 // Holds the application version number.
@@ -30,6 +31,13 @@ type config struct {
 		burst   int
 		enabled bool
 	}
+	smtp struct {
+		host     string
+		port     int
+		username string
+		password string
+		sender   string
+	}
 }
 
 // A type to hold the dependencies for HTTP handlers, helpers,
@@ -38,4 +46,5 @@ type application struct {
 	config config
 	logger *jsonlog.Logger
 	models data.Models
+	mailer mailer.Mailer
 }
