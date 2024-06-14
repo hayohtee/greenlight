@@ -4,6 +4,7 @@ import (
 	"github.com/hayohtee/greenlight/internal/data"
 	"github.com/hayohtee/greenlight/internal/jsonlog"
 	"github.com/hayohtee/greenlight/internal/mailer"
+	"sync"
 )
 
 // Holds the application version number.
@@ -47,4 +48,5 @@ type application struct {
 	logger *jsonlog.Logger
 	models data.Models
 	mailer mailer.Mailer
+	wg     sync.WaitGroup
 }
