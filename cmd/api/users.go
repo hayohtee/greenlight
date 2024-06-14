@@ -65,7 +65,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	app.background(func() {
 		templateData := map[string]any{
-			"activationToken": token,
+			"activationToken": token.PlainText,
 			"userID":          user.ID,
 		}
 
