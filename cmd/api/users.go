@@ -114,7 +114,7 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Update the user's activation status
-	user.activated = true
+	user.Activated = true
 
 	// Save the updated user record in the database, checking for any edit conflicts.
 	err = app.models.Users.Update(user)
