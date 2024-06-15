@@ -31,13 +31,13 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 	}
 
 	// Look up the user record based on the email address. If no matching user
-	// was found then we call the app.invalidCredentialResponse() helper to send
+	// was found then we call the app.invalidCredentialsResponse() helper to send
 	// 401 Unauthorized response to the client.
 	user, err := app.models.Users.GetByEmail(input.Email)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
-			app.invalidCredentialResponse(w, r)
+			app.invalidCredentialsResponse(w, r)
 		default:
 			app.serverErrorResponse(w, r, err)
 		}
@@ -51,10 +51,10 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 		return
 	}
 
-	// If the password do not match, call app.invalidCredentialResponse() helper
+	// If the password do not match, call app.invalidCredentialsResponse() helper
 	// again and return.
 	if !match {
-		app.invalidCredentialResponse(w, r)
+		app.invalidCredentialsResponse(w, r)
 		return
 	}
 
