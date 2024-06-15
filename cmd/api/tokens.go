@@ -1,0 +1,72 @@
+package main
+
+import (
+	"errors"
+	"github.com/hayohtee/greenlight/internal/data"
+	"github.com/hayohtee/greenlight/internal/validator"
+	"net/http"
+	"time"
+)
+
+func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	// Validate email and password provided by the user.
+	v := validator.New()
+	data.ValidateEmail(v, input.Email)
+	data.ValidatePasswordPlaintext(v, input.Password)
+
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	// Look up the user record based on the email address. If no matching user
+	// was found then we call the app.invalidCredentialResponse() helper to send
+	// 401 Unauthorized response to the client.
+	user, err := app.models.Users.GetByEmail(input.Email)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.invalidCredentialResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	// Check if the password matches the actual password of the user.
+	match, err := user.Password.Matches(input.Password)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// If the password do not match, call app.invalidCredentialResponse() helper
+	// again and return.
+	if !match {
+		app.invalidCredentialResponse(w, r)
+		return
+	}
+
+	// Generate new token with 24-hour expiry time and scope 'authentication'.
+	token, err := app.models.Tokens.New(user.ID, 24*time.Hour, data.ScopeAuthentication)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusCreated, envelope{"authentication_token": token}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
