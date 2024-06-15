@@ -11,17 +11,19 @@ import (
 const (
 	// ScopeActivation represents activation scope
 	ScopeActivation = "activation"
+	// ScopeAuthentication represents authentication scope.
+	ScopeAuthentication = "authentication"
 )
 
 // Token is a struct to hold the data for an individual token. This
 // includes the plainText and hashed version of the token, associated
 // user ID, expiry time and scope.
 type Token struct {
-	PlainText string
-	Hash      []byte
-	UserID    int64
-	Expiry    time.Time
-	Scope     string
+	PlainText string    `json:"token"`
+	Hash      []byte    `json:"-"`
+	UserID    int64     `json:"-"`
+	Expiry    time.Time `json:"expiry"`
+	Scope     string    `json:"-"`
 }
 
 // generateToken returns new token instance containing the given user ID, duration

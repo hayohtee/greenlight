@@ -7,6 +7,9 @@ import (
 	"time"
 )
 
+// AnonymousUser is a variable to represents an anonymous user.
+var AnonymousUser = &User{}
+
 // User is a type that represent individual user.
 type User struct {
 	ID        int64     `json:"id"`
@@ -16,6 +19,11 @@ type User struct {
 	Password  password  `json:"-"`
 	Activated bool      `json:"activated"`
 	Version   int       `json:"-"`
+}
+
+// IsAnonymous check if a user instance is anonymous user.
+func (u *User) IsAnonymous() bool {
+	return u == AnonymousUser
 }
 
 // A custom password type consisting of plaintext and hashed versions of
