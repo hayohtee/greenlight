@@ -9,6 +9,7 @@ import (
 	"github.com/hayohtee/greenlight/internal/mailer"
 	_ "github.com/lib/pq"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -38,6 +39,12 @@ func main() {
 	flag.StringVar(&cfg.smtp.username, "smtp-username", "9d94c906bc4200", "SMTP username")
 	flag.StringVar(&cfg.smtp.password, "smtp-password", "d9dc397d913a4f", "SMTP password")
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@greenlight.hayohtee.com>", "SMTP sender")
+
+	flag.Func("cors-trusted-origins", "Trusted CORS origins (space seperated)", func(val string) error {
+		cfg.cors.trustedOrigins = strings.Fields(val)
+		return nil
+	})
+
 	flag.Parse()
 
 	// Initialize a new jsonlog.Logger which writes any message *at or above* the INFO
