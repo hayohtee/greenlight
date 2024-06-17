@@ -39,6 +39,9 @@ type config struct {
 		password string
 		sender   string
 	}
+	cors struct {
+		trustedOrigins []string
+	}
 }
 
 // A type to hold the dependencies for HTTP handlers, helpers,
