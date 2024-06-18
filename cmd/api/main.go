@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"expvar"
 	"flag"
 	"github.com/hayohtee/greenlight/internal/data"
 	"github.com/hayohtee/greenlight/internal/jsonlog"
@@ -64,6 +65,8 @@ func main() {
 	}(db)
 
 	logger.PrintInfo("database connection established", nil)
+
+	expvar.NewString("version").Set(version)
 
 	// Create an instance of application struct
 	app := &application{
