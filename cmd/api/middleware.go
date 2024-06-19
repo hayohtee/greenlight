@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"expvar"
 	"fmt"
 	"github.com/hayohtee/greenlight/internal/data"
 	"github.com/hayohtee/greenlight/internal/validator"
@@ -195,5 +196,30 @@ func (app *application) enableCORS(next http.Handler) http.Handler {
 			}
 		}
 		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) metrics(next http.Handler) http.Handler {
+	var (
+		totalRequestsReceived           = expvar.NewInt("total_requests_received")
+		totalResponsesSent              = expvar.NewInt("total_responses_sent")
+		totalProcessingTimeMicroseconds = expvar.NewInt("total_processing_time_μs")
+	)
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Record the start time to process the request.
+		start := time.Now()
+
+		// Increment the number of request received
+		totalRequestsReceived.Add(1)
+
+		next.ServeHTTP(w, r)
+
+		// Increment the number of response sent
+		totalResponsesSent.Add(1)
+
+		// Calculate the number of microseconds since we began to process the request.
+		duration := time.Since(start).Microseconds()
+		totalProcessingTimeMicroseconds.Add(duration)
 	})
 }
