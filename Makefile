@@ -13,4 +13,4 @@ db/migrations/up: confirm
 	migrate -path ./migrations -database ${GREENLIGHT_DB_DSN} up
 
 confirm:
-	@echo -n 'Are you sure? [y/N]' && read ans && [ $${ans:-N} = y ]
+	@echo -n 'Are you sure? [y/N] ' && read ans && [ $${ans:-N} = y ]
