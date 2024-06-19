@@ -3,12 +3,14 @@ package main
 import (
 	"context"
 	"database/sql"
+	"expvar"
 	"flag"
 	"github.com/hayohtee/greenlight/internal/data"
 	"github.com/hayohtee/greenlight/internal/jsonlog"
 	"github.com/hayohtee/greenlight/internal/mailer"
 	_ "github.com/lib/pq"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -64,6 +66,23 @@ func main() {
 	}(db)
 
 	logger.PrintInfo("database connection established", nil)
+
+	expvar.NewString("version").Set(version)
+
+	// Publish the number of active goroutines.
+	expvar.Publish("goroutines", expvar.Func(func() any {
+		return runtime.NumGoroutine()
+	}))
+
+	// Publish the database connection pool statistics.
+	expvar.Publish("database", expvar.Func(func() any {
+		return db.Stats()
+	}))
+
+	// Publish the current time Unix timestamp.
+	expvar.Publish("timestamp", expvar.Func(func() any {
+		return time.Now().Unix()
+	}))
 
 	// Create an instance of application struct
 	app := &application{
