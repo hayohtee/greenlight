@@ -9,6 +9,7 @@ import (
 	"golang.org/x/time/rate"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -235,6 +236,7 @@ func (app *application) metrics(next http.Handler) http.Handler {
 		totalRequestsReceived           = expvar.NewInt("total_requests_received")
 		totalResponsesSent              = expvar.NewInt("total_responses_sent")
 		totalProcessingTimeMicroseconds = expvar.NewInt("total_processing_time_μs")
+		totalResponsesSentByStatus      = expvar.NewMap("total_responses_sent_by_status")
 	)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -244,10 +246,15 @@ func (app *application) metrics(next http.Handler) http.Handler {
 		// Increment the number of request received
 		totalRequestsReceived.Add(1)
 
-		next.ServeHTTP(w, r)
+		// Creates a new metricsResponseWriter, which wraps the original http.ResponseWriter.
+		mw := &metricsResponseWriter{wrapped: w}
+
+		next.ServeHTTP(mw, r)
 
 		// Increment the number of response sent
 		totalResponsesSent.Add(1)
+
+		totalResponsesSentByStatus.Add(strconv.Itoa(mw.statusCode), 1)
 
 		// Calculate the number of microseconds since we began to process the request.
 		duration := time.Since(start).Microseconds()
