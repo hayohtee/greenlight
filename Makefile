@@ -93,3 +93,10 @@ production_host_ip = '34.142.69.14'
 .PHONY: production/connect
 production/connect:
 	ssh olamilekan@${production_host_ip}
+
+## production/deploy/api: deploy the api to production
+.PHONY: production/deploy/api
+production/deploy/api:
+	rsync -P ./bin/linux_amd64/api olamilekan@${production_host_ip}:~
+	rsync -rP --delete ./migrations olamilekan@${production_host_ip}:~
+	ssh -t olamilekan@${production_host_ip} 'migrate -path ~/migrations -database $$GREENLIGHT_DB_DSN up'
