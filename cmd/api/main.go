@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"expvar"
 	"flag"
+	"fmt"
 	"github.com/hayohtee/greenlight/internal/data"
 	"github.com/hayohtee/greenlight/internal/jsonlog"
 	"github.com/hayohtee/greenlight/internal/mailer"
@@ -23,7 +24,7 @@ func main() {
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
 
 	// Reads the DSN value from db-dsn command-line flag into the config struct.
-	flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("GREENLIGHT_DB_DSN"), "PostgreSQL DSN")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", "", "PostgreSQL DSN")
 
 	// Reads the connection pool settings from the command-line flags into the config struct
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
@@ -47,7 +48,13 @@ func main() {
 		return nil
 	})
 
+	displayVersion := flag.Bool("version", false, "Display version and exit")
 	flag.Parse()
+
+	if *displayVersion {
+		fmt.Printf("Version:\t%s\n", version)
+		os.Exit(0)
+	}
 
 	// Initialize a new jsonlog.Logger which writes any message *at or above* the INFO
 	// severity level to the standard output stream.
