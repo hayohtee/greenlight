@@ -4,11 +4,12 @@ import (
 	"github.com/hayohtee/greenlight/internal/data"
 	"github.com/hayohtee/greenlight/internal/jsonlog"
 	"github.com/hayohtee/greenlight/internal/mailer"
+	"github.com/hayohtee/greenlight/internal/vcs"
 	"sync"
 )
 
 // Holds the application version number.
-const version = "1.0.0"
+var version = vcs.Version()
 
 // A type to holds all configuration settings for the app.
 type config struct {
