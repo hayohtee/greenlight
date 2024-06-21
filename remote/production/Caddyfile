@@ -1,0 +1,3 @@
+http://34.142.22.105 {
+    reverse_proxy localhost:4000
+}
