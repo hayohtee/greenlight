@@ -1,4 +1,4 @@
-http://34.142.22.105 {
+http://greenlight.hayohtee.mooo.com {
     respond /debug/* "Not Permitted" 403
     reverse_proxy localhost:4000
 }
