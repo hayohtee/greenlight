@@ -100,7 +100,7 @@ production/deploy/api:
 	rsync -P ./bin/linux_amd64/api olamilekan@${production_host_ip}:~
 	rsync -rP --delete ./migrations olamilekan@${production_host_ip}:~
 	rsync -P ./remote/production/api.service olamilekan@${production_host_ip}:~
-	rsync -P ./remote/production/Caddyfile greenlight@${production_host_ip}:~
+	rsync -P ./remote/production/Caddyfile olamilekan@${production_host_ip}:~
 	ssh -t olamilekan@${production_host_ip} '\
 		migrate -path ~/migrations -database $$GREENLIGHT_DB_DSN up \
 		&& sudo mv ~/api.service /etc/systemd/system/ \
