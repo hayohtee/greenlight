@@ -1,4 +1,8 @@
-http://hayohtee.duckdns.org {
+{
+    email lekantobi47@gmail.com
+}
+
+hayohtee.duckdns.org {
     respond /debug/* "Not Permitted" 403
     reverse_proxy localhost:4000
 }
